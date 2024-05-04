@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tic Tac Toe</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: pink; /* Changed background color to pink */
+    }
+    .container {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(3, 100px);
+        grid-gap: 2px;
+        background-color: #f0f0f0;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .cell {
+        width: 100px;
+        height: 100px;
+        border: 2px solid #333;
+        font-size: 3em;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        position: relative;
+    }
+    .cell:hover {
+        background-color: #ddd;
+    }
+    .winning-line {
+        position: absolute;
+        height: 10px;
+        background-color: red;
+        z-index: 1;
+    }
+    #status {
+        text-align: center;
+        margin-bottom: 20px;
+        color: white;
+    }
+    #reset-button {
+        text-align: center;
+        margin-top: 20px;
+    }
+    #reset-button button {
+        padding: 10px 20px;
+        font-size: 1em;
+        cursor: pointer;
+        background-color: #333;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+    }
+    #reset-button button:hover {
+        background-color: #555;
+    }
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 2;
+        justify-content: center;
+        align-items: center;
+    }
+    .modal-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+    .modal-content p {
+        margin: 0;
+        font-size: 1.5em;
+        text-align: center;
+    }
+    .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        cursor: pointer;
+        font-size: 1.2em;
+        color: #777;
+    }
+    .wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+</style>
+</head>
+<body>
+
+<div class="wrapper"> <!-- Wrapper for vertical arrangement -->
+    <div id="status">Player X's turn</div> <!-- Show turn status -->
+
+    <div class="container" id="board">
+    </div>
+
+    <div id="reset-button"> <!-- Reset game button -->
+        <button onclick="resetBoard()">Reset Game</button>
+    </div>
+</div>
+
+<!-- Modal dialog for winning or draw alert -->
+<div id="modal" class="modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <p id="message"></p>
+    </div>
+</div>
+
+<script>
+    const board = document.getElementById('board');
+    let currentPlayer = 'X';
+    const cells = Array.from({ length: 9 });
+
+    function createCell(index) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.dataset.index = index;
+        cell.addEventListener('click', () => {
+            if (!cells[index]) {
+                cells[index] = currentPlayer;
+                cell.textContent = currentPlayer;
+                if (checkWin()) {
+                    showWinningLine(index);
+                    setTimeout(() => {
+                        const winnerMessage = `Player ${currentPlayer} wins!`;
+                        showMessage(winnerMessage);
+                    }, 100); // Show modal after 100ms
+                    setTimeout(resetBoard, 500); // Reset after 500ms
+                } else if (cells.every(cell => cell)) {
+                    const drawMessage = "It's a draw!";
+                    showMessage(drawMessage);
+                    setTimeout(resetBoard, 500); // Reset after 500ms
+                } else {
+                    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                    document.getElementById('status').textContent = `Player ${currentPlayer}'s turn`;
+                }
+            }
+        });
+        return cell;
+    }
+
+    function checkWin() {
+        const winConditions = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6]
+        ];
+        return winConditions.some(combination => {
+            const [a, b, c] = combination;
+            if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) {
+                return true;
+            }
+            return false;
+        });
+    }
+
+    function showWinningLine(index) {
+        const winConditions = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6]
+        ];
+        const winningCombination = winConditions.find(combination => {
+            const [a, b, c] = combination;
+            return cells[a] && cells[a] === cells[b] && cells[a] === cells[c];
+        });
+        if (winningCombination) {
+            const line = document.createElement('div');
+            line.classList.add('winning-line');
+            const firstCell = document.querySelector(`.cell[data-index="${winningCombination[0]}"]`);
+            const lastCell = document.querySelector(`.cell[data-index="${winningCombination[2]}"]`);
+            const rectFirst = firstCell.getBoundingClientRect();
+            const rectLast = lastCell.getBoundingClientRect();
+            const centerX1 = rectFirst.left + rectFirst.width / 2;
+            const centerY1 = rectFirst.top + rectFirst.height / 2;
+            const centerX2 = rectLast.left + rectLast.width / 2;
+            const centerY2 = rectLast.top + rectLast.height / 2;
+            line.style.width = Math.sqrt((centerX2 - centerX1) ** 2 + (centerY2 - centerY1) ** 2) + 'px';
+            line.style.left = centerX1 + 'px';
+            line.style.top = centerY1 + 'px';
+            line.style.transformOrigin = 'left center';
+            line.style.transform = `rotate(${Math.atan2(centerY2 - centerY1, centerX2 - centerX1)}rad)`;
+            document.body.appendChild(line);
+        }
+    }
+
+    function resetBoard() {
+        cells.fill(null);
+        currentPlayer = 'X';
+        board.innerHTML = '';
+        document.querySelectorAll('.winning-line').forEach(line => line.remove()); // Remove winning line
+        for (let i = 0; i < 9; i++) {
+            const cell = createCell(i);
+            board.appendChild(cell);
+        }
+        document.getElementById('status').textContent = `Player ${currentPlayer}'s turn`; // Reset turn status
+        closeModal(); // Close modal if open
+    }
+
+    function showMessage(message) {
+        document.getElementById('message').textContent = message;
+        showModal();
+    }
+
+    function showModal() {
+        document.getElementById('modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+    }
+
+    // Initial setup
+    resetBoard();
+</script>
+
+</body>
+</html>
