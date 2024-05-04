@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Game</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .container {
+    text-align: center;
+  }
+
+  input[type="text"], button {
+    margin-top: 10px;
+    padding: 10px;
+    font-size: 16px;
+  }
+
+  button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: #0056b3;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Math Game</h1>
+  <div id="problem"></div>
+  <input type="text" id="answer" placeholder="Enter your answer">
+  <button onclick="checkAnswer()">Check Answer</button>
+  <p id="result"></p>
+  <p>Correct: <span id="correctCount">0</span>, Incorrect: <span id="incorrectCount">0</span>, Skipped: <span id="skipCount">0</span>, Total: <span id="totalCount">0</span>, Score: <span id="score">0</span></p>
+  <button onclick="skipProblem()">Skip Problem</button>
+  <button onclick="generateProblem()">Next Problem</button>
+</div>
+
+<script>
+  var correctCount = 0; // Initialize correct count
+  var incorrectCount = 0; // Initialize incorrect count
+  var skipCount = 0; // Initialize skip count
+  var totalCount = 0; // Initialize total count
+  var score = 0; // Initialize score
+
+  // Function to generate random addition problems
+  function generateProblem() {
+    var num1 = Math.floor(Math.random() * 20); // Generate random number between 0 and 19
+    var num2 = Math.floor(Math.random() * 10);
+    var problemElement = document.getElementById("problem");
+    problemElement.textContent = num1 + " + " + num2 + " = ";
+    document.getElementById("answer").value = ""; // Clear previous answer
+    document.getElementById("result").textContent = ""; // Clear previous result
+    totalCount++; // Increment total count
+    updateScoreboard(); // Update scoreboard
+  }
+
+  // Function to check the answer
+  function checkAnswer() {
+    var answer = parseInt(document.getElementById("answer").value); // Get user's answer
+    var problem = document.getElementById("problem").textContent;
+    var nums = problem.split("+");
+    var num1 = parseInt(nums[0]);
+    var num2 = parseInt(nums[1]);
+    if (answer === num1 + num2) {
+      document.getElementById("result").textContent = "Correct! 🎉";
+      correctCount++; // Increment correct count for correct answer
+      score++; // Increment score for correct answer
+    } else {
+      document.getElementById("result").textContent = "Incorrect. Try again!";
+      incorrectCount++; // Increment incorrect count for incorrect answer
+    }
+    updateScoreboard(); // Update scoreboard
+  }
+
+  // Function to skip the current problem
+  function skipProblem() {
+    skipCount++; // Increment skip count
+    generateProblem(); // Generate new problem
+  }
+
+  // Function to update the scoreboard
+  function updateScoreboard() {
+    document.getElementById("correctCount").textContent = correctCount;
+    document.getElementById("incorrectCount").textContent = incorrectCount;
+    document.getElementById("skipCount").textContent = skipCount;
+    document.getElementById("totalCount").textContent = totalCount;
+    document.getElementById("score").textContent = score;
+  }
+
+  // Initial setup
+  generateProblem();
+</script>
+
+</body>
+</html>
