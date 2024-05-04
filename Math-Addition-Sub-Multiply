@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Game</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .container {
+    text-align: center;
+  }
+
+  input[type="text"], button {
+    margin-top: 10px;
+    padding: 10px;
+    font-size: 16px;
+  }
+
+  button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: #0056b3;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .celebration {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    display: none;
+  }
+
+  .flower {
+    width: 100px;
+    height: 100px;
+    background-image: url('https://cdn.pixabay.com/photo/2014/04/02/16/26/flower-307405_960_720.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    animation: explode 1s forwards;
+  }
+
+  @keyframes explode {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Math Game</h1>
+  <button onclick="selectOperation('addition')">Addition</button>
+  <button onclick="selectOperation('subtraction')">Subtraction</button>
+  <button onclick="selectOperation('oddEven')">Odd/Even</button>
+  
+  <div id="additionProblems" class="hidden">
+    <h2>Addition Problems</h2>
+    <div id="additionProblem"></div>
+    <input type="text" id="additionAnswer" placeholder="Enter your answer">
+    <button onclick="checkAnswer('addition')">Check Answer</button>
+    <p id="additionResult"></p>
+    <button onclick="generateProblem('addition')">Next Problem</button>
+  </div>
+
+  <div id="subtractionProblems" class="hidden">
+    <h2>Subtraction Problems</h2>
+    <div id="subtractionProblem"></div>
+    <input type="text" id="subtractionAnswer" placeholder="Enter your answer">
+    <button onclick="checkAnswer('subtraction')">Check Answer</button>
+    <p id="subtractionResult"></p>
+    <button onclick="generateProblem('subtraction')">Next Problem</button>
+  </div>
+
+  <div id="oddEvenProblems" class="hidden">
+    <h2>Odd/Even Problems</h2>
+    <div id="oddEvenProblem"></div>
+    <input type="radio" id="oddRadio" name="oddEven" value="odd">
+    <label for="oddRadio">Odd</label>
+    <input type="radio" id="evenRadio" name="oddEven" value="even">
+    <label for="evenRadio">Even</label>
+    <button onclick="checkAnswer('oddEven')">Check Answer</button>
+    <p id="oddEvenResult"></p>
+    <button onclick="generateProblem('oddEven')">Next Problem</button>
+  </div>
+  
+  <p>Correct: <span id="correctCount">0</span>, Incorrect: <span id="incorrectCount">0</span>, Skipped: <span id="skipCount">0</span>, Total: <span id="totalCount">0</span>, Score: <span id="score">0</span></p>
+  
+  <div class="celebration" id="celebration"></div>
+</div>
+
+<script>
+  var correctCount = 0; // Initialize correct count
+  var incorrectCount = 0; // Initialize incorrect count
+  var skipCount = 0; // Initialize skip count
+  var totalCount = 0; // Initialize total count
+  var score = 0; // Initialize score
+  var operation = ''; // Operation selected by user
+
+  // Function to select the operation
+  function selectOperation(selectedOperation) {
+    operation = selectedOperation;
+    if (operation === 'addition') {
+      document.getElementById("additionProblems").classList.remove("hidden");
+      document.getElementById("subtractionProblems").classList.add("hidden");
+      document.getElementById("oddEvenProblems").classList.add("hidden");
+      generateProblem('addition');
+    } else if (operation === 'subtraction') {
+      document.getElementById("additionProblems").classList.add("hidden");
+      document.getElementById("subtractionProblems").classList.remove("hidden");
+      document.getElementById("oddEvenProblems").classList.add("hidden");
+      generateProblem('subtraction');
+    } else if (operation === 'oddEven') {
+      document.getElementById("additionProblems").classList.add("hidden");
+      document.getElementById("subtractionProblems").classList.add("hidden");
+      document.getElementById("oddEvenProblems").classList.remove("hidden");
+      generateProblem('oddEven');
+    }
+  }
+
+  // Function to generate random addition, subtraction, or odd/even problems
+  function generateProblem(selectedOperation) {
+    var num1, num2, problemElement;
+    if (selectedOperation === 'addition') {
+      num1 = Math.floor(Math.random() * 20); // Generate random number between 0 and 19
+      num2 = Math.floor(Math.random() * 10);
+      problemElement = document.getElementById("additionProblem");
+      problemElement.textContent = num1 + " + " + num2 + " = ";
+      document.getElementById("additionAnswer").value = ""; // Clear previous answer
+      document.getElementById("additionResult").textContent = ""; // Clear previous result
+    } else if (selectedOperation === 'subtraction') {
+      num1 = Math.floor(Math.random() * 20) + 10; // Generate random number between 10 and 29
+      num2 = Math.floor(Math.random() * 10);
+      problemElement = document.getElementById("subtractionProblem");
+      problemElement.textContent = num1 + " - " + num2 + " = ";
+      document.getElementById("subtractionAnswer").value = ""; // Clear previous answer
+      document.getElementById("subtractionResult").textContent = ""; // Clear previous result
+    } else if (selectedOperation === 'oddEven') {
+      num1 = Math.floor(Math.random() * 50); // Generate random number between 0 and 49
+      problemElement = document.getElementById("oddEvenProblem");
+      if (num1 % 2 === 0) {
+        problemElement.textContent = "is "+num1 + "  Even";
+      } else {
+        problemElement.textContent = "is "+num1 + "  Odd";
+      }
+      document.getElementById("oddEvenAnswer").value = ""; // Clear previous answer
+      document.getElementById("oddEvenResult").textContent = ""; // Clear previous result
+    }
+    totalCount++; // Increment total count
+    updateScoreboard(); // Update scoreboard
+  }
+
+  // Function to check the answer
+  function checkAnswer(selectedOperation) {
+    var answer;
+    if (selectedOperation === 'addition') {
+      answer = parseInt(document.getElementById("additionAnswer").value); // Get user's answer
+      var problem = document.getElementById("additionProblem").textContent;
+      var nums = problem.split("+");
+      var num1 = parseInt(nums[0]);
+      var num2 = parseInt(nums[1]);
+    } else if (selectedOperation === 'subtraction') {
+      answer = parseInt(document.getElementById("subtractionAnswer").value); // Get user's answer
+      var problem = document.getElementById("subtractionProblem").textContent;
+      var nums = problem.split("-");
+      var num1 = parseInt(nums[0]);
+      var num2 = parseInt(nums[1]);
+    } else if (selectedOperation === 'oddEven') {
+      var oddRadio = document.getElementById("oddRadio");
+      var evenRadio = document.getElementById("evenRadio");
+      if (oddRadio.checked) {
+        answer = "odd";
+      } else if (evenRadio.checked) {
+        answer = "even";
+      } else {
+        // No radio button is checked
+        document.getElementById(selectedOperation + "Result").textContent = "Please select odd or even!";
+        return;
+      }
+      var problem = document.getElementById("oddEvenProblem").textContent;
+      var num = parseInt(problem.split(" ")[0]);
+      if (num % 2 === 0) {
+        var correctAnswer = "even";
+      } else {
+        var correctAnswer = "odd";
+      }
+    }
+    if (selectedOperation !== 'oddEven') {
+      if (answer === num1 + num2 || answer === num1 - num2) {
+        document.getElementById(selectedOperation + "Result").textContent = "Correct! 🎉";
+        correctCount++; // Increment correct count for correct answer
+        score++; // Increment score for correct answer
+        displayCelebration(); // Display celebration
+      } else {
+        document.getElementById(selectedOperation + "Result").textContent = "Incorrect. Try again!";
+        incorrectCount++; // Increment incorrect count for incorrect answer
+      }
+    } else {
+      if (answer === correctAnswer) {
+        document.getElementById(selectedOperation + "Result").textContent = "Correct! 🎉";
+        correctCount++; // Increment correct count for correct answer
+        score++; // Increment score for correct answer
+        displayCelebration(); // Display celebration
+      } else {
+        document.getElementById(selectedOperation + "Result").textContent = "Incorrect. Try again!";
+        incorrectCount++; // Increment incorrect count for incorrect answer
+      }
+    }
+    updateScoreboard(); // Update scoreboard
+  }
+
+  // Function to update the scoreboard
+  function updateScoreboard() {
+    document.getElementById("correctCount").textContent = correctCount;
+    document.getElementById("incorrectCount").textContent = incorrectCount;
+    document.getElementById("skipCount").textContent = skipCount;
+    document.getElementById("totalCount").textContent = totalCount;
+    document.getElementById("score").textContent = score;
+  }
+
+  // Function to display celebration
+  function displayCelebration() {
+    var celebration = document.getElementById("celebration");
+    celebration.classList.remove("hidden");
+    celebration.innerHTML = '<div class="flower"></div>';
+    setTimeout(function() {
+      celebration.classList.add("hidden");
+    }, 2000);
+  }
+</script>
+
+</body>
+</html>
